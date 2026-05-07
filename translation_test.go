@@ -20,6 +20,13 @@ func TestMMToT(t *testing.T) {
 	assert.Equal(t, 0.0, mmToT(50, 50, 50), "degenerate range returns 0")
 }
 
+func TestApplyTInvert(t *testing.T) {
+	assert.Equal(t, 0.3, applyTInvert(0.3, false), "invert=false is identity")
+	assert.InDelta(t, 0.7, applyTInvert(0.3, true), 1e-9)
+	assert.InDelta(t, 1.0, applyTInvert(0.0, true), 1e-9)
+	assert.InDelta(t, 0.0, applyTInvert(1.0, true), 1e-9)
+}
+
 func TestBuildPositions_Valid(t *testing.T) {
 	current := []float64{10, 20, 30}
 	got, err := buildPositions(current, 1, 99)

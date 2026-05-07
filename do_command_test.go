@@ -325,6 +325,64 @@ func TestGetPosition_HappyPath(t *testing.T) {
 	assert.Equal(t, false, resp["r_moving"])
 }
 
+func TestDoMotion_Inverted_TranslationTarget(t *testing.T) {
+	s, g, _, _ := newTestInstance(t)
+	s.cfg.Invert = true
+
+	var gotPositions []float64
+	called := make(chan struct{})
+	g.MoveToPositionFunc = func(ctx context.Context, positionsMm, speedsMmPerSec []float64, extra map[string]interface{}) error {
+		gotPositions = positionsMm
+		close(called)
+		return nil
+	}
+
+	// invert=true with min=0/max=100: user t=0.0 should map to mm=100.
+	_, err := s.DoCommand(context.Background(), map[string]interface{}{"t": 0.0})
+	require.NoError(t, err)
+
+	select {
+	case <-called:
+	case <-time.After(time.Second):
+		t.Fatal("MoveToPosition not called")
+	}
+	assert.Equal(t, []float64{100.0}, gotPositions)
+}
+
+func TestDoMotion_Inverted_TFinalRoundTrips(t *testing.T) {
+	s, g, _, _ := newTestInstance(t)
+	s.cfg.Invert = true
+
+	// After the move, the gantry reports mm corresponding to user t=0.3 → internal t=0.7 → 70mm.
+	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
+		return []float64{70.0}, nil
+	}
+	g.MoveToPositionFunc = func(ctx context.Context, positionsMm, speedsMmPerSec []float64, extra map[string]interface{}) error {
+		return nil
+	}
+
+	resp, err := s.DoCommand(context.Background(), map[string]interface{}{"t": 0.3})
+	require.NoError(t, err)
+	assert.InDelta(t, 0.3, resp["t_final"], 1e-9, "t_final reported in same (inverted) frame as input")
+}
+
+func TestGetPosition_Inverted(t *testing.T) {
+	s, g, m, _ := newTestInstance(t)
+	s.cfg.Invert = true
+
+	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
+		return []float64{0.0}, nil // mm=0 → internal t=0 → user t=1
+	}
+	m.PositionFunc = func(ctx context.Context, extra map[string]interface{}) (float64, error) {
+		return 0.25, nil // 90°, untouched by invert
+	}
+
+	resp, err := s.DoCommand(context.Background(), map[string]interface{}{"cmd": "get_position"})
+	require.NoError(t, err)
+	assert.InDelta(t, 1.0, resp["t"], 1e-9)
+	assert.InDelta(t, 90.0, resp["r"], 0.01, "rotation is unaffected by invert")
+}
+
 func TestDoCommand_UnknownCmd(t *testing.T) {
 	s, _, _, _ := newTestInstance(t)
 	_, err := s.DoCommand(context.Background(), map[string]interface{}{"cmd": "party"})

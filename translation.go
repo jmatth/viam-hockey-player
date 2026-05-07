@@ -16,6 +16,16 @@ func mmToT(mm, minMM, maxMM float64) float64 {
 	return (mm - minMM) / (maxMM - minMM)
 }
 
+// applyTInvert returns t when invert is false, otherwise 1-t. Used at the
+// boundary between user-facing and internal frames so the rest of the code
+// can reason in a single frame.
+func applyTInvert(t float64, invert bool) float64 {
+	if invert {
+		return 1.0 - t
+	}
+	return t
+}
+
 // buildPositions returns a copy of currentPositions with the value at axisIdx
 // replaced by newMM. Used to construct the positions_mm vector for
 // gantry.MoveToPosition while leaving non-target axes at their current values.

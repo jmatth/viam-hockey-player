@@ -81,6 +81,9 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	if tOK && (tVal < 0 || tVal > 1) {
 		return nil, fmt.Errorf("'t' must be in [0, 1], got %v", tVal)
 	}
+	if tOK {
+		tVal = applyTInvert(tVal, s.cfg.Invert)
+	}
 	if rOK && (rVal < 0 || rVal > 360) {
 		return nil, fmt.Errorf("'r' must be in [0, 360], got %v", rVal)
 	}
@@ -258,7 +261,7 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	if tOK {
 		gPos, err := s.gantry.Position(ctx, nil)
 		if err == nil && s.cfg.TranslationAxisIndex < len(gPos) {
-			resp["t_final"] = mmToT(gPos[s.cfg.TranslationAxisIndex], s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM)
+			resp["t_final"] = applyTInvert(mmToT(gPos[s.cfg.TranslationAxisIndex], s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM), s.cfg.Invert)
 		}
 	}
 	if rOK {
@@ -279,7 +282,7 @@ func (s *hockeyPlayerHockeyPlayer) doGetPosition(ctx context.Context) (map[strin
 		return nil, fmt.Errorf("gantry position has %d axes but translation_axis_index is %d",
 			len(gPos), s.cfg.TranslationAxisIndex)
 	}
-	t := mmToT(gPos[s.cfg.TranslationAxisIndex], s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM)
+	t := applyTInvert(mmToT(gPos[s.cfg.TranslationAxisIndex], s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM), s.cfg.Invert)
 
 	mPos, err := s.rotationMotor.Position(ctx, nil)
 	if err != nil {
