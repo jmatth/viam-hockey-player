@@ -1,0 +1,13 @@
+{
+  "module_name": "hockey-player",
+  "visibility": "public",
+  "namespace": "nfranczak",
+  "language": "go",
+  "resource_type": "service",
+  "resource_subtype": "generic",
+  "model_name": "hockey-player",
+  "initialize_git": false,
+  "generator_version": "0.1.0",
+  "generated_on": "2026-04-23T18:34:43.445408492Z",
+  "module_readme_link": "README.md"
+}

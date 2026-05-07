@@ -1,0 +1,29 @@
+{
+  "$schema": "https://dl.viam.dev/module.schema.json",
+  "module_id": "nfranczak:hockey-player",
+  "visibility": "public",
+  "url": "",
+  "description": "Modular generic service: hockey-player",
+  "models": [
+    {
+      "api": "rdk:component:generic",
+      "model": "nfranczak:generic:hockey-player",
+      "markdown_link": "nfranczak_generic_hockey-player.md"
+    }
+  ],
+  "applications": null,
+  "markdown_link": "README.md",
+  "entrypoint": "bin/hockey-player",
+  "first_run": "",
+  "build": {
+    "build": "make module.tar.gz",
+    "setup": "make setup",
+    "path": "module.tar.gz",
+    "arch": [
+      "linux/amd64",
+      "linux/arm64",
+      "darwin/arm64",
+      "windows/amd64"
+    ]
+  }
+}
