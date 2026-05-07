@@ -2,9 +2,59 @@
 
 A Viam module that drives a "hockey player" mechanism with one translational axis (via a gantry) and one rotational axis (via a motor). All interaction goes through `DoCommand` on the generic component.
 
-## Models
+## Model
 
-- [`nfranczak:generic:hockey-player`](nfranczak_generic_hockey-player.md) — see this doc for configuration and attributes.
+`nfranczak:generic:hockey-player`
+
+## Configuration
+
+```json
+{
+  "gantry": "<gantry-name>",
+  "rotation_motor": "<motor-name>",
+  "translation_motor": "<motor-name>",
+  "min_translation_mm": <float>,
+  "max_translation_mm": <float>,
+  "default_rpm_rotation": <float>,
+  "default_speed_mm_per_sec": <float>,
+  "translation_axis_index": <int>,
+  "default_wrap": <bool>,
+  "rotation_arrival_tol_deg": <float>,
+  "translation_arrival_tol_mm": <float>
+}
+```
+
+### Attributes
+
+| Name                          | Type   | Inclusion | Description |
+|-------------------------------|--------|-----------|-------------|
+| `gantry`                      | string | Required  | Name of the gantry providing the translational axis. |
+| `rotation_motor`              | string | Required  | Name of the motor driving rotation. Must support position reporting. |
+| `translation_motor`           | string | Required  | Name of the motor driving the translational axis (used for power-mode control). |
+| `min_translation_mm`          | float  | Required  | Minimum translation position in mm. Must be ≥ 0. Maps to `t = 0`. |
+| `max_translation_mm`          | float  | Required  | Maximum translation position in mm. Must be > `min_translation_mm` and ≤ the gantry axis length. Maps to `t = 1`. |
+| `default_rpm_rotation`        | float  | Required  | Default rotation speed (RPM) when `rpm` is omitted from a move command. Must be > 0. |
+| `default_speed_mm_per_sec`    | float  | Required  | Default translation speed (mm/s) when `speed_mm_per_sec` is omitted from a move command. Must be > 0. |
+| `translation_axis_index`      | int    | Optional  | Index of the gantry axis used for translation. Defaults to `0`. |
+| `default_wrap`                | bool   | Optional  | Default value for `wrap` (shortest angular path). Defaults to `false`. |
+| `rotation_arrival_tol_deg`    | float  | Optional  | Arrival tolerance (degrees) for power-mode rotation. Defaults to `0.5`. |
+| `translation_arrival_tol_mm`  | float  | Optional  | Arrival tolerance (mm) for power-mode translation. Defaults to `2.0`. |
+
+### Example Configuration
+
+```json
+{
+  "gantry": "my-gantry",
+  "rotation_motor": "rot-motor",
+  "translation_motor": "trans-motor",
+  "min_translation_mm": 0,
+  "max_translation_mm": 500,
+  "default_rpm_rotation": 30,
+  "default_speed_mm_per_sec": 100,
+  "translation_axis_index": 0,
+  "default_wrap": true
+}
+```
 
 ## Using DoCommand
 

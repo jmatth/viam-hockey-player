@@ -8,7 +8,7 @@
     {
       "api": "rdk:component:generic",
       "model": "nfranczak:generic:hockey-player",
-      "markdown_link": "nfranczak_generic_hockey-player.md"
+      "markdown_link": "README.md"
     }
   ],
   "applications": null,

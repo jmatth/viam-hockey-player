@@ -2,6 +2,7 @@
 GO_BUILD_ENV :=
 GO_BUILD_FLAGS :=
 MODULE_BINARY := bin/hockey-player
+STRIP ?= strip
 
 ifeq ($(VIAM_TARGET_OS), windows)
 	GO_BUILD_ENV += GOOS=windows GOARCH=amd64
@@ -24,11 +25,15 @@ test:
 
 module.tar.gz: meta.json $(MODULE_BINARY)
 ifneq ($(VIAM_TARGET_OS), windows)
-	strip $(MODULE_BINARY)
+	$(STRIP) $(MODULE_BINARY)
 endif
 	tar czf $@ meta.json $(MODULE_BINARY)
 
 module: test module.tar.gz
+
+arm64:
+	rm -f $(MODULE_BINARY)
+	$(MAKE) module.tar.gz VIAM_BUILD_OS=linux VIAM_BUILD_ARCH=arm64 STRIP=aarch64-linux-gnu-strip
 
 all: test module.tar.gz
 
