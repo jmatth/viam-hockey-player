@@ -50,6 +50,9 @@ func TestComputeDelta_NoWrap(t *testing.T) {
 		{100, 150, 50},
 		{150, 100, -50},
 		{0, 0, 0},
+		// Landing on the 0/360 seam itself counts as crossing under wrap=false.
+		{270, 0, -270},
+		{350, 0, -350},
 	}
 	for _, tc := range cases {
 		got := computeDelta(tc.current, tc.target, false)

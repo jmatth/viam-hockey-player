@@ -21,7 +21,9 @@ func computeDelta(currentDeg, targetDeg float64, wrap bool) float64 {
 		return deltaShort
 	}
 	end := currentDeg + deltaShort
-	if end < 0 || end > 360 {
+	// end == 360 is the seam itself (== 0). Treat it as crossing so the long
+	// way is taken instead of landing on the wrap point.
+	if end < 0 || end >= 360 {
 		if deltaShort > 0 {
 			return deltaShort - 360
 		}
