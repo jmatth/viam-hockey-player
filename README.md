@@ -22,7 +22,8 @@ A Viam module that drives a "hockey player" mechanism with one translational axi
   "rotation_arrival_tol_deg": <float>,
   "translation_arrival_tol_mm": <float>,
   "invert": <bool>,
-  "invert_rotation": <bool>
+  "invert_rotation_degrees": <bool>,
+  "invert_rotation_spin": <bool>
 }
 ```
 
@@ -42,7 +43,8 @@ A Viam module that drives a "hockey player" mechanism with one translational axi
 | `rotation_arrival_tol_deg`    | float  | Optional  | Arrival tolerance (degrees) for power-mode rotation. Defaults to `0.5`. |
 | `translation_arrival_tol_mm`  | float  | Optional  | Arrival tolerance (mm) for power-mode translation. Defaults to `2.0`. |
 | `invert`                      | bool   | Optional  | If true, the `t` axis is flipped: user `t = 0` maps to `max_translation_mm` and `t = 1` maps to `min_translation_mm`. `t_final` and `get_position`'s `t` are reported in the same flipped frame. Defaults to `false`. |
-| `invert_rotation`             | bool   | Optional  | If true, the rotation axis is flipped: user `r` is mirrored as `(360 - r) % 360` before commanding the motor. Use when the rotation motor is wired backwards. `r_final` and `get_position`'s `r` are reported in the same flipped frame. Defaults to `false`. |
+| `invert_rotation_degrees`     | bool   | Optional  | If true, the degree coordinate frame is mirrored: user `r` is converted as `(360 - r) % 360` before commanding the motor, and reported positions are converted back the same way. Use when the angle convention is backwards. Defaults to `false`. |
+| `invert_rotation_spin`        | bool   | Optional  | If true, the commanded rotation delta is negated so the motor spins in the opposite direction without changing the degree coordinate frame. Use when the motor moves the wrong way but position reads correctly. Defaults to `false`. |
 
 ### Example Configuration
 
