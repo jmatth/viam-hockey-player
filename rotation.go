@@ -10,6 +10,16 @@ const (
 	directionCounterClockwise                          // always move in the negative (counter-clockwise) direction
 )
 
+// applyRInvert returns r when invert is false, otherwise the mirror angle
+// (360 - r) % 360. Used at the boundary between user-facing and motor frames
+// so the rest of the code reasons in a single frame.
+func applyRInvert(r float64, invert bool) float64 {
+	if invert {
+		return math.Mod(360.0-r, 360.0)
+	}
+	return r
+}
+
 // normalizeAngle converts a monotonic motor revolution count to a bounded
 // player angle in [0, 360). The double-mod handles negative accumulated
 // revolutions (the motor has been driven backward past its power-on zero).
