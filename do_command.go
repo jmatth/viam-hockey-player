@@ -87,6 +87,9 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	if rOK && (rVal < 0 || rVal > 360) {
 		return nil, fmt.Errorf("'r' must be in [0, 360], got %v", rVal)
 	}
+	if rOK && s.cfg.InvertDegrees {
+		rVal = math.Mod(360.0-rVal, 360.0)
+	}
 
 	dirStr, dirOK, err := optString(cmd, "direction")
 	if err != nil {
@@ -286,7 +289,11 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	if rOK {
 		mPos, err := s.rotationMotor.Position(ctx, nil)
 		if err == nil {
-			resp["r_final"] = normalizeAngle(mPos)
+			r := normalizeAngle(mPos)
+			if s.cfg.InvertDegrees {
+				r = math.Mod(360.0-r, 360.0)
+			}
+			resp["r_final"] = r
 		}
 	}
 	return resp, nil
@@ -308,6 +315,9 @@ func (s *hockeyPlayerHockeyPlayer) doGetPosition(ctx context.Context) (map[strin
 		return nil, fmt.Errorf("reading rotation motor position: %w", err)
 	}
 	r := normalizeAngle(mPos)
+	if s.cfg.InvertDegrees {
+		r = math.Mod(360.0-r, 360.0)
+	}
 
 	gMoving, err := s.gantry.IsMoving(ctx)
 	if err != nil {

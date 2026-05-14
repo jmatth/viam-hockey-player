@@ -41,6 +41,7 @@ A Viam module that drives a "hockey player" mechanism with one translational axi
 | `rotation_arrival_tol_deg`    | float  | Optional  | Arrival tolerance (degrees) for power-mode rotation. Defaults to `0.5`. |
 | `translation_arrival_tol_mm`  | float  | Optional  | Arrival tolerance (mm) for power-mode translation. Defaults to `2.0`. |
 | `invert_spin`                 | bool   | Optional  | If true, `cw` and `ccw` directions are swapped. Use when the rotation motor is wired backwards. Defaults to `false`. |
+| `invert_degrees`              | bool   | Optional  | If true, rotation degrees are mirrored as `360 - r`. Use when one player's 90° is another's 270°. Defaults to `false`. |
 | `invert`                      | bool   | Optional  | If true, the `t` axis is flipped: user `t = 0` maps to `max_translation_mm` and `t = 1` maps to `min_translation_mm`. `t_final` and `get_position`'s `t` are reported in the same flipped frame. Defaults to `false`. |
 
 ### Example Configuration

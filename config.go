@@ -16,6 +16,7 @@ type Config struct {
 	TranslationArrivalTolMM float64 `json:"translation_arrival_tol_mm,omitempty"`
 	Invert                  bool    `json:"invert,omitempty"`
 	InvertSpin              bool    `json:"invert_spin,omitempty"`
+	InvertDegrees           bool    `json:"invert_degrees,omitempty"`
 }
 
 func (c *Config) Validate(path string) ([]string, []string, error) {
