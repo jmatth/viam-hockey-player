@@ -17,7 +17,7 @@ func validCfg() *Config {
 		MaxTranslationMM:        100,
 		DefaultRPMRotation:      60,
 		DefaultSpeedMMPerSec:    50,
-		DefaultWrap:             false,
+		DefaultDirection:        "",
 		RotationArrivalTolDeg:   0.5,
 		TranslationArrivalTolMM: 2.0,
 	}

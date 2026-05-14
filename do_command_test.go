@@ -34,7 +34,7 @@ func newTestInstance(t *testing.T) (*hockeyPlayerHockeyPlayer, *inject.Gantry, *
 		MaxTranslationMM:     100,
 		DefaultRPMRotation:   60,
 		DefaultSpeedMMPerSec: 50,
-		DefaultWrap:          false,
+		DefaultDirection:     "",
 	}
 	cancelCtx, cancelFunc := context.WithCancel(context.Background())
 
@@ -676,7 +676,7 @@ func TestDoMotion_RPMRotation_UsesGoToWithAbsoluteTarget(t *testing.T) {
 	require.Eventually(t, func() bool { return callCount == 1 }, time.Second, 10*time.Millisecond)
 
 	assert.InDelta(t, 45.0, gotRPM, 1e-9)
-	// Current 90°, target 180°, wrap=false default, short path is +90°. Absolute target:
+	// Current 90°, target 180°, no direction set (shortest path), short path is +90°. Absolute target:
 	// current_rev + 90/360 = 2.25 + 0.25 = 2.5.
 	assert.InDelta(t, 2.5, gotTargetRev, 1e-9)
 }

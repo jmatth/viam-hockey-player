@@ -11,7 +11,7 @@ type Config struct {
 	MaxTranslationMM        float64 `json:"max_translation_mm"`
 	DefaultRPMRotation      float64 `json:"default_rpm_rotation"`
 	DefaultSpeedMMPerSec    float64 `json:"default_speed_mm_per_sec"`
-	DefaultWrap             bool    `json:"default_wrap,omitempty"`
+	DefaultDirection        string  `json:"default_direction,omitempty"`
 	RotationArrivalTolDeg   float64 `json:"rotation_arrival_tol_deg,omitempty"`
 	TranslationArrivalTolMM float64 `json:"translation_arrival_tol_mm,omitempty"`
 	Invert                  bool    `json:"invert,omitempty"`
@@ -47,6 +47,9 @@ func (c *Config) Validate(path string) ([]string, []string, error) {
 	}
 	if c.TranslationArrivalTolMM < 0 {
 		return nil, nil, fmt.Errorf("%s: 'translation_arrival_tol_mm' must not be negative", path)
+	}
+	if c.DefaultDirection != "" && c.DefaultDirection != "cw" && c.DefaultDirection != "ccw" {
+		return nil, nil, fmt.Errorf("%s: 'default_direction' must be \"cw\", \"ccw\", or omitted", path)
 	}
 	return []string{c.Gantry, c.RotationMotor, c.TranslationMotor}, nil, nil
 }

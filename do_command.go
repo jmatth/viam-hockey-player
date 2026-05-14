@@ -88,13 +88,25 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 		return nil, fmt.Errorf("'r' must be in [0, 360], got %v", rVal)
 	}
 
-	wrapVal, wrapOK, err := optBool(cmd, "wrap")
+	dirStr, dirOK, err := optString(cmd, "direction")
 	if err != nil {
 		return nil, err
 	}
-	wrap := s.cfg.DefaultWrap
-	if wrapOK {
-		wrap = wrapVal
+	if dirOK && dirStr != "cw" && dirStr != "ccw" {
+		return nil, fmt.Errorf("'direction' must be \"cw\" or \"ccw\", got %q", dirStr)
+	}
+	dirSource := s.cfg.DefaultDirection
+	if dirOK {
+		dirSource = dirStr
+	}
+	var dir rotationDirection
+	switch dirSource {
+	case "cw":
+		dir = directionClockwise
+	case "ccw":
+		dir = directionCounterClockwise
+	default:
+		dir = directionShortest
 	}
 
 	drv, err := s.parseDrive(cmd)
@@ -110,7 +122,7 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 			return nil, fmt.Errorf("reading rotation motor position: %w", err)
 		}
 		currentDeg := normalizeAngle(posRev)
-		delta := computeDelta(currentDeg, rVal, wrap)
+		delta := computeDelta(currentDeg, rVal, dir)
 		if math.Abs(delta) < 0.01 {
 			s.logger.Debugf("rotation already at target (current=%.2f°, target=%.2f°)", currentDeg, rVal)
 			// No dispatch; axis simply absent from jobs.
@@ -326,14 +338,14 @@ func optFloat(m map[string]interface{}, key string) (float64, bool, error) {
 	}
 }
 
-func optBool(m map[string]interface{}, key string) (bool, bool, error) {
+func optString(m map[string]interface{}, key string) (string, bool, error) {
 	v, ok := m[key]
 	if !ok {
-		return false, false, nil
+		return "", false, nil
 	}
-	b, ok := v.(bool)
+	s, ok := v.(string)
 	if !ok {
-		return false, false, fmt.Errorf("%q must be a bool, got %T", key, v)
+		return "", false, fmt.Errorf("%q must be a string, got %T", key, v)
 	}
-	return b, true, nil
+	return s, true, nil
 }

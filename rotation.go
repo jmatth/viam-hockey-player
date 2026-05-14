@@ -2,6 +2,14 @@ package hockeyplayer
 
 import "math"
 
+type rotationDirection int
+
+const (
+	directionShortest         rotationDirection = iota // take the shortest angular path
+	directionClockwise                                 // always move in the positive (clockwise) direction
+	directionCounterClockwise                          // always move in the negative (counter-clockwise) direction
+)
+
 // normalizeAngle converts a monotonic motor revolution count to a bounded
 // player angle in [0, 360). The double-mod handles negative accumulated
 // revolutions (the motor has been driven backward past its power-on zero).
@@ -12,22 +20,23 @@ func normalizeAngle(positionRev float64) float64 {
 // computeDelta returns the signed degrees the rotation axis should move to
 // go from currentDeg to targetDeg.
 //
-// wrap = true  → pick the shortest path; may cross the 0/360 seam.
-// wrap = false → never cross the 0/360 seam; if the shortest path would cross
-// it, take the long way around instead.
-func computeDelta(currentDeg, targetDeg float64, wrap bool) float64 {
+// directionShortest         → pick the shortest angular path; may cross the 0/360 seam.
+// directionClockwise        → always move in the positive (clockwise) direction.
+// directionCounterClockwise → always move in the negative (counter-clockwise) direction.
+func computeDelta(currentDeg, targetDeg float64, dir rotationDirection) float64 {
 	deltaShort := math.Mod(targetDeg-currentDeg+540.0, 360.0) - 180.0
-	if wrap {
+	switch dir {
+	case directionClockwise:
+		if deltaShort < 0 {
+			return deltaShort + 360.0
+		}
+		return deltaShort
+	case directionCounterClockwise:
+		if deltaShort > 0 {
+			return deltaShort - 360.0
+		}
+		return deltaShort
+	default: // directionShortest
 		return deltaShort
 	}
-	end := currentDeg + deltaShort
-	// end == 360 is the seam itself (== 0). Treat it as crossing so the long
-	// way is taken instead of landing on the wrap point.
-	if end < 0 || end >= 360 {
-		if deltaShort > 0 {
-			return deltaShort - 360
-		}
-		return deltaShort + 360
-	}
-	return deltaShort
 }
