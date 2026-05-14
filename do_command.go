@@ -84,9 +84,6 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	if tOK {
 		tVal = applyTInvert(tVal, s.cfg.Invert)
 	}
-	if rOK {
-		rVal = applyRInvert(rVal, s.cfg.InvertRotationDegrees)
-	}
 	if rOK && (rVal < 0 || rVal > 360) {
 		return nil, fmt.Errorf("'r' must be in [0, 360], got %v", rVal)
 	}
@@ -111,6 +108,13 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	default:
 		dir = directionShortest
 	}
+	if s.cfg.InvertSpin {
+		if dir == directionClockwise {
+			dir = directionCounterClockwise
+		} else if dir == directionCounterClockwise {
+			dir = directionClockwise
+		}
+	}
 
 	drv, err := s.parseDrive(cmd)
 	if err != nil {
@@ -126,9 +130,6 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 		}
 		currentDeg := normalizeAngle(posRev)
 		delta := computeDelta(currentDeg, rVal, dir)
-		if s.cfg.InvertRotationSpin {
-			delta = -delta
-		}
 		if math.Abs(delta) < 0.01 {
 			s.logger.Debugf("rotation already at target (current=%.2f°, target=%.2f°)", currentDeg, rVal)
 			// No dispatch; axis simply absent from jobs.
@@ -285,7 +286,7 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	if rOK {
 		mPos, err := s.rotationMotor.Position(ctx, nil)
 		if err == nil {
-			resp["r_final"] = applyRInvert(normalizeAngle(mPos), s.cfg.InvertRotationDegrees)
+			resp["r_final"] = normalizeAngle(mPos)
 		}
 	}
 	return resp, nil
@@ -306,7 +307,7 @@ func (s *hockeyPlayerHockeyPlayer) doGetPosition(ctx context.Context) (map[strin
 	if err != nil {
 		return nil, fmt.Errorf("reading rotation motor position: %w", err)
 	}
-	r := applyRInvert(normalizeAngle(mPos), s.cfg.InvertRotationDegrees)
+	r := normalizeAngle(mPos)
 
 	gMoving, err := s.gantry.IsMoving(ctx)
 	if err != nil {
