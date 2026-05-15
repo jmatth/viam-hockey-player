@@ -125,10 +125,10 @@ func NewHockeyPlayer(ctx context.Context, deps resource.Dependencies, name resou
 		logger,
 	)
 
-	logger.Infof("hockey-player started: t=[%.2f,%.2f]mm axis=%d default_rpm=%.1f default_speed=%.1f default_direction=%q invert=%v rot_tol=%.2f° trans_tol=%.2fmm",
+	logger.Infof("hockey-player started: t=[%.2f,%.2f]mm axis=%d default_rpm=%.1f default_speed=%.1f default_direction=%q invert_movement=%v rot_tol=%.2f° trans_tol=%.2fmm",
 		conf.MinTranslationMM, conf.MaxTranslationMM, conf.TranslationAxisIndex,
 		conf.DefaultRPMRotation, conf.DefaultSpeedMMPerSec, conf.DefaultDirection,
-		conf.Invert,
+		conf.InvertMovement,
 		conf.RotationTolDeg(), conf.TranslationTolMM())
 
 	return s, nil

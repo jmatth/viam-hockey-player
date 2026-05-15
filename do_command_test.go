@@ -327,7 +327,7 @@ func TestGetPosition_HappyPath(t *testing.T) {
 
 func TestDoMotion_Inverted_TranslationTarget(t *testing.T) {
 	s, g, _, _ := newTestInstance(t)
-	s.cfg.Invert = true
+	s.cfg.InvertMovement = true
 
 	var gotPositions []float64
 	called := make(chan struct{})
@@ -351,7 +351,7 @@ func TestDoMotion_Inverted_TranslationTarget(t *testing.T) {
 
 func TestDoMotion_Inverted_TFinalRoundTrips(t *testing.T) {
 	s, g, _, _ := newTestInstance(t)
-	s.cfg.Invert = true
+	s.cfg.InvertMovement = true
 
 	// After the move, the gantry reports mm corresponding to user t=0.3 → internal t=0.7 → 70mm.
 	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
@@ -368,7 +368,7 @@ func TestDoMotion_Inverted_TFinalRoundTrips(t *testing.T) {
 
 func TestGetPosition_Inverted(t *testing.T) {
 	s, g, m, _ := newTestInstance(t)
-	s.cfg.Invert = true
+	s.cfg.InvertMovement = true
 
 	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
 		return []float64{0.0}, nil // mm=0 → internal t=0 → user t=1
