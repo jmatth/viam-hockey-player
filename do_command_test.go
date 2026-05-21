@@ -34,7 +34,7 @@ func newTestInstance(t *testing.T) (*hockeyPlayerHockeyPlayer, *inject.Gantry, *
 		MaxTranslationMM:     100,
 		DefaultRPMRotation:   60,
 		DefaultSpeedMMPerSec: 50,
-		DefaultWrap:          false,
+		DefaultDirection:     "",
 	}
 	cancelCtx, cancelFunc := context.WithCancel(context.Background())
 
@@ -327,7 +327,7 @@ func TestGetPosition_HappyPath(t *testing.T) {
 
 func TestDoMotion_Inverted_TranslationTarget(t *testing.T) {
 	s, g, _, _ := newTestInstance(t)
-	s.cfg.Invert = true
+	s.cfg.InvertMovement = true
 
 	var gotPositions []float64
 	called := make(chan struct{})
@@ -351,7 +351,7 @@ func TestDoMotion_Inverted_TranslationTarget(t *testing.T) {
 
 func TestDoMotion_Inverted_TFinalRoundTrips(t *testing.T) {
 	s, g, _, _ := newTestInstance(t)
-	s.cfg.Invert = true
+	s.cfg.InvertMovement = true
 
 	// After the move, the gantry reports mm corresponding to user t=0.3 → internal t=0.7 → 70mm.
 	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
@@ -368,7 +368,7 @@ func TestDoMotion_Inverted_TFinalRoundTrips(t *testing.T) {
 
 func TestGetPosition_Inverted(t *testing.T) {
 	s, g, m, _ := newTestInstance(t)
-	s.cfg.Invert = true
+	s.cfg.InvertMovement = true
 
 	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
 		return []float64{0.0}, nil // mm=0 → internal t=0 → user t=1
@@ -676,7 +676,7 @@ func TestDoMotion_RPMRotation_UsesGoToWithAbsoluteTarget(t *testing.T) {
 	require.Eventually(t, func() bool { return callCount == 1 }, time.Second, 10*time.Millisecond)
 
 	assert.InDelta(t, 45.0, gotRPM, 1e-9)
-	// Current 90°, target 180°, wrap=false default, short path is +90°. Absolute target:
+	// Current 90°, target 180°, no direction set (shortest path), short path is +90°. Absolute target:
 	// current_rev + 90/360 = 2.25 + 0.25 = 2.5.
 	assert.InDelta(t, 2.5, gotTargetRev, 1e-9)
 }

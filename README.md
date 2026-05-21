@@ -18,10 +18,10 @@ A Viam module that drives a "hockey player" mechanism with one translational axi
   "default_rpm_rotation": <float>,
   "default_speed_mm_per_sec": <float>,
   "translation_axis_index": <int>,
-  "default_wrap": <bool>,
+  "default_direction": "<clockwise|counter-clockwise>",
   "rotation_arrival_tol_deg": <float>,
   "translation_arrival_tol_mm": <float>,
-  "invert": <bool>
+  "invert_movement": <bool>
 }
 ```
 
@@ -37,10 +37,12 @@ A Viam module that drives a "hockey player" mechanism with one translational axi
 | `default_rpm_rotation`        | float  | Required  | Default rotation speed (RPM) when `rpm` is omitted from a move command. Must be > 0. |
 | `default_speed_mm_per_sec`    | float  | Required  | Default translation speed (mm/s) when `speed_mm_per_sec` is omitted from a move command. Must be > 0. |
 | `translation_axis_index`      | int    | Optional  | Index of the gantry axis used for translation. Defaults to `0`. |
-| `default_wrap`                | bool   | Optional  | Default value for `wrap` (shortest angular path). Defaults to `false`. |
+| `default_direction`           | string | Optional  | Default rotation direction: `"cw"` (clockwise) or `"ccw"` (counter-clockwise). Omit to take the shortest angular path. |
 | `rotation_arrival_tol_deg`    | float  | Optional  | Arrival tolerance (degrees) for power-mode rotation. Defaults to `0.5`. |
 | `translation_arrival_tol_mm`  | float  | Optional  | Arrival tolerance (mm) for power-mode translation. Defaults to `2.0`. |
-| `invert`                      | bool   | Optional  | If true, the `t` axis is flipped: user `t = 0` maps to `max_translation_mm` and `t = 1` maps to `min_translation_mm`. `t_final` and `get_position`'s `t` are reported in the same flipped frame. Defaults to `false`. |
+| `invert_spin`                 | bool   | Optional  | If true, `cw` and `ccw` directions are swapped. Use when the rotation motor is wired backwards. Defaults to `false`. |
+| `invert_degrees`              | bool   | Optional  | If true, rotation degrees are mirrored as `360 - r`. Use when one player's 90° is another's 270°. Defaults to `false`. |
+| `invert_movement`             | bool   | Optional  | If true, the `t` axis is flipped: user `t = 0` maps to `max_translation_mm` and `t = 1` maps to `min_translation_mm`. `t_final` and `get_position`'s `t` are reported in the same flipped frame. Defaults to `false`. |
 
 ### Example Configuration
 
@@ -54,7 +56,7 @@ A Viam module that drives a "hockey player" mechanism with one translational axi
   "default_rpm_rotation": 30,
   "default_speed_mm_per_sec": 100,
   "translation_axis_index": 0,
-  "default_wrap": true
+  "default_direction": "cw"
 }
 ```
 
@@ -89,10 +91,10 @@ Either field can be omitted to use the configured default.
 
 #### Other optional fields
 
-| Field   | Type  | Description                                                              |
-|---------|-------|--------------------------------------------------------------------------|
-| `power` | float | Open-loop drive magnitude in `(0, 1]`. Mutually exclusive with `rpm`/`speed_mm_per_sec` — selects power mode instead of RPM mode. |
-| `wrap`  | bool  | If true, take the shortest angular path to `r`. Defaults from config.    |
+| Field       | Type   | Description                                                              |
+|-------------|--------|--------------------------------------------------------------------------|
+| `power`     | float  | Open-loop drive magnitude in `(0, 1]`. Mutually exclusive with `rpm`/`speed_mm_per_sec` — selects power mode instead of RPM mode. |
+| `direction` | string | Rotation direction: `"cw"` (clockwise) or `"ccw"` (counter-clockwise). Omit to take the shortest angular path. Defaults from config. |
 
 Response:
 
