@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Extend the existing `nfranczak:generic:hockey-player` module so motion commands carry both a target (`t`, `r`) and a drive mode (`rpm` or `power`), so translation can be power-driven via a newly-configured `translation_motor`, and so `DoCommand` blocks until every commanded axis has arrived.
+**Goal:** Extend the existing `viam-rod-hockey:generic:hockey-player` module so motion commands carry both a target (`t`, `r`) and a drive mode (`rpm` or `power`), so translation can be power-driven via a newly-configured `translation_motor`, and so `DoCommand` blocks until every commanded axis has arrived.
 
 **Architecture:** Keep the per-axis `axisController` preemption model but make dispatch return an error channel so the top-level `DoCommand` can wait on every active axis before returning. Add a shared `powerMoveTo` helper that both axes reuse for the `SetPower` + poll + `Stop` path; it takes injected position-reader / power-setter / stopper functions so the two axes differ only in which resource backs which function. Rpm-mode rotation switches from `GoFor(delta_rev)` to `GoTo(target_rev)`; rpm-mode translation stays on `gantry.MoveToPosition`.
 

@@ -1,6 +1,6 @@
 # Hockey Player — Design Spec
 
-**Module:** `nfranczak:generic:hockey-player`
+**Module:** `viam-rod-hockey:generic:hockey-player`
 **Resource type:** generic **component** (changed from the scaffolded generic service)
 **Date:** 2026-04-23
 
@@ -10,7 +10,7 @@ Drive a physical hockey player figure whose linear translation is controlled by 
 
 ## 1. Architecture overview
 
-The module registers the `nfranczak:generic:hockey-player` model against the generic **component** API and depends on two Viam resources:
+The module registers the `viam-rod-hockey:generic:hockey-player` model against the generic **component** API and depends on two Viam resources:
 
 - A **`gantry`** resource for linear translation along one axis.
 - A **`motor`** resource (stepper) for rotation.

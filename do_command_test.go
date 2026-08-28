@@ -45,6 +45,7 @@ func newTestInstance(t *testing.T) (*hockeyPlayerHockeyPlayer, *inject.Gantry, *
 		gantry:           g,
 		rotationMotor:    m,
 		translationMotor: mt,
+		axisLengthMM:     120, // deliberately > MaxTranslationMM to catch offset bugs in frame mirroring
 		cancelCtx:        cancelCtx,
 		cancelFunc:       cancelFunc,
 	}
@@ -381,6 +382,98 @@ func TestGetPosition_Inverted(t *testing.T) {
 	require.NoError(t, err)
 	assert.InDelta(t, 1.0, resp["t"], 1e-9)
 	assert.InDelta(t, 90.0, resp["r"], 0.01, "rotation is unaffected by invert")
+}
+
+func TestDoMotion_InvertTranslation_MirrorsGantryTarget(t *testing.T) {
+	s, g, _, _ := newTestInstance(t)
+	s.cfg.InvertTranslation = true
+
+	var gotPositions []float64
+	called := make(chan struct{})
+	g.MoveToPositionFunc = func(ctx context.Context, positionsMm, speedsMmPerSec []float64, extra map[string]interface{}) error {
+		gotPositions = positionsMm
+		close(called)
+		return nil
+	}
+
+	// t=0.25 → frame mm=25; the gantry homed to the far end of the 120mm axis,
+	// so the raw gantry target is mirrored: 120 - 25 = 95.
+	_, err := s.DoCommand(context.Background(), map[string]interface{}{"t": 0.25})
+	require.NoError(t, err)
+
+	select {
+	case <-called:
+	case <-time.After(time.Second):
+		t.Fatal("MoveToPosition not called")
+	}
+	assert.Equal(t, []float64{95.0}, gotPositions)
+}
+
+func TestDoMotion_InvertTranslation_TFinalRoundTrips(t *testing.T) {
+	s, g, _, _ := newTestInstance(t)
+	s.cfg.InvertTranslation = true
+
+	// Gantry reports raw 95mm → frame 120-95=25mm → t=0.25.
+	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
+		return []float64{95.0}, nil
+	}
+
+	resp, err := s.DoCommand(context.Background(), map[string]interface{}{"t": 0.25})
+	require.NoError(t, err)
+	assert.InDelta(t, 0.25, resp["t_final"], 1e-9, "t_final reported in the calibrated frame")
+}
+
+func TestGetPosition_InvertTranslation(t *testing.T) {
+	s, g, _, _ := newTestInstance(t)
+	s.cfg.InvertTranslation = true
+
+	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
+		return []float64{120.0}, nil // raw 120 → frame 0 → t=0
+	}
+
+	resp, err := s.DoCommand(context.Background(), map[string]interface{}{"cmd": "get_position"})
+	require.NoError(t, err)
+	assert.InDelta(t, 0.0, resp["t"], 1e-9)
+}
+
+func TestGetPosition_InvertTranslationAndMovement(t *testing.T) {
+	s, g, _, _ := newTestInstance(t)
+	s.cfg.InvertTranslation = true
+	s.cfg.InvertMovement = true
+
+	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
+		return []float64{120.0}, nil // raw 120 → frame 0 → internal t=0 → user t=1
+	}
+
+	resp, err := s.DoCommand(context.Background(), map[string]interface{}{"cmd": "get_position"})
+	require.NoError(t, err)
+	assert.InDelta(t, 1.0, resp["t"], 1e-9)
+}
+
+func TestDoMotion_InvertTranslation_PowerDirectionUsesFrame(t *testing.T) {
+	s, g, _, mt := newTestInstance(t)
+	s.cfg.InvertTranslation = true
+
+	// Carriage at raw 120mm = frame 0. Target t=1 → frame 100. Frame delta is
+	// +100, so power must be positive even though the raw gantry delta is -20.
+	var reachedTarget atomic.Bool
+	g.PositionFunc = func(ctx context.Context, extra map[string]interface{}) ([]float64, error) {
+		if reachedTarget.Load() {
+			return []float64{20.0}, nil // raw 20 = frame 100 → arrived
+		}
+		return []float64{120.0}, nil
+	}
+	var gotPower atomic.Value
+	mt.SetPowerFunc = func(ctx context.Context, powerPct float64, extra map[string]interface{}) error {
+		gotPower.Store(powerPct)
+		reachedTarget.Store(true)
+		return nil
+	}
+
+	_, err := s.DoCommand(context.Background(), map[string]interface{}{"t": 1.0, "power": 0.5})
+	require.NoError(t, err)
+	require.NotNil(t, gotPower.Load(), "SetPower not called")
+	assert.InDelta(t, 0.5, gotPower.Load().(float64), 1e-9, "power sign must follow the calibrated frame")
 }
 
 func TestDoCommand_UnknownCmd(t *testing.T) {

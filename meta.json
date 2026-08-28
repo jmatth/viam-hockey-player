@@ -1,13 +1,13 @@
 {
   "$schema": "https://dl.viam.dev/module.schema.json",
-  "module_id": "nfranczak:hockey-player",
+  "module_id": "viam-rod-hockey:hockey-player",
   "visibility": "public",
-  "url": "https://github.com/nfranczak/hockey-player",
+  "url": "https://github.com/jmatth/hockey-player",
   "description": "Modular generic service: hockey-player",
   "models": [
     {
       "api": "rdk:component:generic",
-      "model": "nfranczak:generic:hockey-player",
+      "model": "viam-rod-hockey:generic:hockey-player",
       "markdown_link": "README.md"
     }
   ],

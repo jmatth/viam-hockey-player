@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Implement the `nfranczak:generic:hockey-player` generic component that drives a Viam gantry for linear translation and a Viam stepper motor for rotation, following the spec at `docs/superpowers/specs/2026-04-23-hockey-player-design.md`.
+**Goal:** Implement the `viam-rod-hockey:generic:hockey-player` generic component that drives a Viam gantry for linear translation and a Viam stepper motor for rotation, following the spec at `docs/superpowers/specs/2026-04-23-hockey-player-design.md`.
 
 **Architecture:** Single generic component registered against `go.viam.com/rdk/components/generic`. Public API is `DoCommand`. Translation moves go through `gantry.MoveToPosition`; rotation moves go through `motor.GoFor` with a computed signed delta in revolutions. Each axis has a small `axisController` that serializes dispatches, preempts in-flight motion when a new command arrives for that axis, and leaves the other axis alone.
 
@@ -79,7 +79,7 @@ import (
 )
 
 var (
-	HockeyPlayer     = resource.NewModel("nfranczak", "generic", "hockey-player")
+	HockeyPlayer     = resource.NewModel("viam-rod-hockey", "generic", "hockey-player")
 	errUnimplemented = errors.New("unimplemented")
 )
 
@@ -817,7 +817,7 @@ import (
 )
 
 var (
-	HockeyPlayer     = resource.NewModel("nfranczak", "generic", "hockey-player")
+	HockeyPlayer     = resource.NewModel("viam-rod-hockey", "generic", "hockey-player")
 	errUnimplemented = errors.New("unimplemented")
 )
 

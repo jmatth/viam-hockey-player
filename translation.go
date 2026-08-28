@@ -26,6 +26,20 @@ func applyTInvert(t float64, invert bool) float64 {
 	return t
 }
 
+// gantryFrameMM converts a translation position between the configured frame
+// (the one min/max_translation_mm were calibrated in, zero at the logical
+// start of the rod) and the raw gantry frame. When invert is set, the gantry
+// homes to the far end of travel, so its coordinates are mirrored across the
+// axis: frame mm = length - gantry mm. The transform is its own inverse, so
+// the same call converts in either direction. With invert unset it is the
+// identity.
+func gantryFrameMM(mm, axisLengthMM float64, invert bool) float64 {
+	if invert {
+		return axisLengthMM - mm
+	}
+	return mm
+}
+
 // buildPositions returns a copy of currentPositions with the value at axisIdx
 // replaced by newMM. Used to construct the positions_mm vector for
 // gantry.MoveToPosition while leaving non-target axes at their current values.

@@ -15,6 +15,7 @@ type Config struct {
 	RotationArrivalTolDeg   float64 `json:"rotation_arrival_tol_deg,omitempty"`
 	TranslationArrivalTolMM float64 `json:"translation_arrival_tol_mm,omitempty"`
 	InvertMovement          bool    `json:"invert_movement,omitempty"`
+	InvertTranslation       bool    `json:"invert_translation,omitempty"`
 	InvertSpin              bool    `json:"invert_spin,omitempty"`
 	InvertDegrees           bool    `json:"invert_degrees,omitempty"`
 }

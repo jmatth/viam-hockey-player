@@ -1,6 +1,6 @@
 # Hockey Player — Design Spec (v2)
 
-**Module:** `nfranczak:generic:hockey-player`
+**Module:** `viam-rod-hockey:generic:hockey-player`
 **Resource type:** generic **component**
 **Date:** 2026-04-24
 **Supersedes:** `2026-04-23-hockey-player-design.md`
@@ -21,7 +21,7 @@ Missing fields leave an axis untouched. Translation and rotation in a single com
 
 ## 1. Architecture overview
 
-The module registers `nfranczak:generic:hockey-player` against the generic **component** API and depends on three Viam resources:
+The module registers `viam-rod-hockey:generic:hockey-player` against the generic **component** API and depends on three Viam resources:
 
 - **`gantry`** — used for positional translation moves (`MoveToPosition`) and for position reads (`Position`) in both modes.
 - **`translation_motor`** — the motor the gantry drives. Used only in power-mode translation for `SetPower` / `Stop`. Position feedback still comes from the gantry so the `t ↔ mm` mapping stays consistent.
