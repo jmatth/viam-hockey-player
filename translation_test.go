@@ -27,12 +27,6 @@ func TestApplyTInvert(t *testing.T) {
 	assert.InDelta(t, 0.0, applyTInvert(1.0, true), 1e-9)
 }
 
-func TestGantryFrameMM(t *testing.T) {
-	assert.Equal(t, 30.0, gantryFrameMM(30, 120, false), "identity when not inverted")
-	assert.Equal(t, 90.0, gantryFrameMM(30, 120, true), "mirrored across the axis length")
-	assert.Equal(t, 30.0, gantryFrameMM(gantryFrameMM(30, 120, true), 120, true), "self-inverse")
-}
-
 func TestBuildPositions_Valid(t *testing.T) {
 	current := []float64{10, 20, 30}
 	got, err := buildPositions(current, 1, 99)

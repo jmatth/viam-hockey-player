@@ -179,12 +179,7 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 			if err != nil {
 				return nil, fmt.Errorf("reading gantry position: %w", err)
 			}
-			// MoveToPosition speaks the raw gantry frame; convert the calibrated-
-			// frame target when the gantry homes to the far end.
-			targetMM := gantryFrameMM(
-				tToMM(tVal, s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM),
-				s.axisLengthMM, s.cfg.InvertTranslation,
-			)
+			targetMM := tToMM(tVal, s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM)
 			positions, err := buildPositions(currentPositions, s.cfg.TranslationAxisIndex, targetMM)
 			if err != nil {
 				return nil, err
@@ -204,17 +199,11 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 			gantryRef := s.gantry
 			translationMotorRef := s.translationMotor
 			targetMM := tToMM(tVal, s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM)
-			axisLen := s.axisLengthMM
-			invertFrame := s.cfg.InvertTranslation
 			pwr := drv.power
 			tol := s.cfg.TranslationTolMM()
 			poll := defaultPowerPollInterval
 			ch := s.translationAxis.dispatch(s.cancelCtx, func(c context.Context) error {
 				return powerMoveTo(c, powerMove{
-					// readPos reports in the calibrated frame (target is in that
-					// frame too), so the power-move direction sign matches the
-					// physical motor response even when far-end homing mirrors
-					// the raw gantry frame.
 					readPos: func(ctx context.Context) (float64, error) {
 						pos, err := gantryRef.Position(ctx, nil)
 						if err != nil {
@@ -223,7 +212,7 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 						if axisIdx >= len(pos) {
 							return 0, fmt.Errorf("gantry returned %d axes but translation_axis_index is %d", len(pos), axisIdx)
 						}
-						return gantryFrameMM(pos[axisIdx], axisLen, invertFrame), nil
+						return pos[axisIdx], nil
 					},
 					setPower: func(ctx context.Context, p float64) error { return translationMotorRef.SetPower(ctx, p, nil) },
 					stop:     func(ctx context.Context) error { return translationMotorRef.Stop(ctx, nil) },
@@ -294,8 +283,7 @@ func (s *hockeyPlayerHockeyPlayer) doMotion(ctx context.Context, cmd map[string]
 	if tOK {
 		gPos, err := s.gantry.Position(ctx, nil)
 		if err == nil && s.cfg.TranslationAxisIndex < len(gPos) {
-			frameMM := gantryFrameMM(gPos[s.cfg.TranslationAxisIndex], s.axisLengthMM, s.cfg.InvertTranslation)
-			resp["t_final"] = applyTInvert(mmToT(frameMM, s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM), s.cfg.InvertMovement)
+			resp["t_final"] = applyTInvert(mmToT(gPos[s.cfg.TranslationAxisIndex], s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM), s.cfg.InvertMovement)
 		}
 	}
 	if rOK {
@@ -320,8 +308,7 @@ func (s *hockeyPlayerHockeyPlayer) doGetPosition(ctx context.Context) (map[strin
 		return nil, fmt.Errorf("gantry position has %d axes but translation_axis_index is %d",
 			len(gPos), s.cfg.TranslationAxisIndex)
 	}
-	frameMM := gantryFrameMM(gPos[s.cfg.TranslationAxisIndex], s.axisLengthMM, s.cfg.InvertTranslation)
-	t := applyTInvert(mmToT(frameMM, s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM), s.cfg.InvertMovement)
+	t := applyTInvert(mmToT(gPos[s.cfg.TranslationAxisIndex], s.cfg.MinTranslationMM, s.cfg.MaxTranslationMM), s.cfg.InvertMovement)
 
 	mPos, err := s.rotationMotor.Position(ctx, nil)
 	if err != nil {

@@ -43,7 +43,6 @@ A Viam module that drives a "hockey player" mechanism with one translational axi
 | `invert_spin`                 | bool   | Optional  | If true, `cw` and `ccw` directions are swapped. Use when the rotation motor is wired backwards. Defaults to `false`. |
 | `invert_degrees`              | bool   | Optional  | If true, rotation degrees are mirrored as `360 - r`. Use when one player's 90° is another's 270°. Defaults to `false`. |
 | `invert_movement`             | bool   | Optional  | If true, the `t` axis is flipped: user `t = 0` maps to `max_translation_mm` and `t = 1` maps to `min_translation_mm`. `t_final` and `get_position`'s `t` are reported in the same flipped frame. Defaults to `false`. |
-| `invert_translation`          | bool   | Optional  | Set when the gantry's homing sequence drives to the **far** end of travel, so raw gantry coordinates are mirrored relative to the frame `min`/`max_translation_mm` were calibrated in. All gantry reads/writes are converted internally (`frame mm = axis length − gantry mm`); `t`, `min`/`max_translation_mm`, and playbooks stay in the calibrated frame. Independent of `invert_movement`. Defaults to `false`. |
 
 ### Example Configuration
 

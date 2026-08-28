@@ -33,7 +33,6 @@ type hockeyPlayerHockeyPlayer struct {
 	gantry           gantry.Gantry
 	rotationMotor    motor.Motor
 	translationMotor motor.Motor
-	axisLengthMM     float64
 
 	cancelCtx  context.Context
 	cancelFunc func()
@@ -100,7 +99,6 @@ func NewHockeyPlayer(ctx context.Context, deps resource.Dependencies, name resou
 		gantry:           g,
 		rotationMotor:    m,
 		translationMotor: mt,
-		axisLengthMM:     lengths[conf.TranslationAxisIndex],
 		cancelCtx:        cancelCtx,
 		cancelFunc:       cancelFunc,
 	}
@@ -127,10 +125,10 @@ func NewHockeyPlayer(ctx context.Context, deps resource.Dependencies, name resou
 		logger,
 	)
 
-	logger.Infof("hockey-player started: t=[%.2f,%.2f]mm axis=%d len=%.2fmm default_rpm=%.1f default_speed=%.1f default_direction=%q invert_movement=%v invert_translation=%v rot_tol=%.2f° trans_tol=%.2fmm",
-		conf.MinTranslationMM, conf.MaxTranslationMM, conf.TranslationAxisIndex, s.axisLengthMM,
+	logger.Infof("hockey-player started: t=[%.2f,%.2f]mm axis=%d default_rpm=%.1f default_speed=%.1f default_direction=%q invert_movement=%v rot_tol=%.2f° trans_tol=%.2fmm",
+		conf.MinTranslationMM, conf.MaxTranslationMM, conf.TranslationAxisIndex,
 		conf.DefaultRPMRotation, conf.DefaultSpeedMMPerSec, conf.DefaultDirection,
-		conf.InvertMovement, conf.InvertTranslation,
+		conf.InvertMovement,
 		conf.RotationTolDeg(), conf.TranslationTolMM())
 
 	return s, nil
