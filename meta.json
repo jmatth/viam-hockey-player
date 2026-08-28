@@ -2,7 +2,7 @@
   "$schema": "https://dl.viam.dev/module.schema.json",
   "module_id": "viam-rod-hockey:hockey-player",
   "visibility": "public",
-  "url": "https://github.com/jmatth/hockey-player",
+  "url": "https://github.com/jmatth/viam-hockey-player",
   "description": "Modular generic service: hockey-player",
   "models": [
     {
